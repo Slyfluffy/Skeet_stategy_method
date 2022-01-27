@@ -74,10 +74,10 @@
 		C1D4EACA2577F487002B56E3 = {
 			isa = PBXGroup;
 			children = (
-				C159391D271E278800A7F857 /* bullet.h */,
-				C1841325273E9C4400143AB2 /* bullet.cpp */,
 				C1841324273E9C4400143AB2 /* bird.h */,
 				C1841327273E9C4700143AB2 /* bird.cpp */,
+				C159391D271E278800A7F857 /* bullet.h */,
+				C1841325273E9C4400143AB2 /* bullet.cpp */,
 				C16B8F532744AFD8009CC1DC /* score.h */,
 				C16B8F502744ABDE009CC1DC /* score.cpp */,
 				C15451E427403CD70095997B /* effect.h */,

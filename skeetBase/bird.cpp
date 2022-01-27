@@ -83,6 +83,8 @@ Standard::Standard(double radius, double speed, int points) : Bird()
 
    // set the size
    this->radius = radius;
+   
+   a = a->factory(STANDARD);
 }
 
 /******************************************************************
@@ -103,6 +105,8 @@ Floater::Floater(double radius, double speed, int points) : Bird()
 
    // set the size
    this->radius = radius;
+   
+   a = a->factory(FLOATER);
 }
 
 /******************************************************************
@@ -123,6 +127,8 @@ Sinker::Sinker(double radius, double speed, int points) : Bird()
 
    // set the size
    this->radius = radius;
+   
+   a = a->factory(SINKER);
 }
 
 /******************************************************************
@@ -143,6 +149,8 @@ Crazy::Crazy(double radius, double speed, int points) : Bird()
 
    // set the size
    this->radius = radius;
+   
+   a = a->factory(CRAZY);
 }
 
  /***************************************************************/
@@ -155,88 +163,88 @@ Crazy::Crazy(double radius, double speed, int points) : Bird()
  * STANDARD ADVANCE
  * How the standard bird moves - inertia and drag
  *********************************************/
-void Standard::advance()
-{
-   // small amount of drag
-   v *= 0.995;
-
-   // inertia
-   pt.add(v);
-
-   // out of bounds checker
-   if (isOutOfBounds())
-   {
-      kill();
-      points *= -1; // points go negative when it is missed!
-   }
-}
-
-/*********************************************
- * FLOATER ADVANCE
- * How the floating bird moves: strong drag and anti-gravity
- *********************************************/
-void Floater::advance()
-{
-   // large amount of drag
-   v *= 0.990;
-
-   // inertia
-   pt.add(v);
-
-   // anti-gravity
-   v.addDy(0.05);
-
-   // out of bounds checker
-   if (isOutOfBounds())
-   {
-      kill();
-      points *= -1; // points go negative when it is missed!
-   }
-}
-
-/*********************************************
- * CRAZY ADVANCE
- * How the crazy bird moves, every half a second it changes direciton
- *********************************************/
-void Crazy::advance()
-{
-   // erratic turns eery half a second or so
-   if (randomInt(0, 15) == 0)
-   {
-      v.addDy(randomFloat(-1.5, 1.5));
-      v.addDx(randomFloat(-1.5, 1.5));
-   }
-
-   // inertia
-   pt.add(v);
-
-   // out of bounds checker
-   if (isOutOfBounds())
-   {
-      kill();
-      points *= -1; // points go negative when it is missed!
-   }
-}
-
-/*********************************************
- * SINKER ADVANCE
- * How the sinker bird moves, no drag but gravity
- *********************************************/
-void Sinker::advance()
-{
-   // gravity
-   v.addDy(-0.07);
-
-   // inertia
-   pt.add(v);
-
-   // out of bounds checker
-   if (isOutOfBounds())
-   {
-      kill();
-      points *= -1; // points go negative when it is missed!
-   }
-}
+//void Standard::advance()
+//{
+//   // small amount of drag
+//   v *= 0.995;
+//
+//   // inertia
+//   pt.add(v);
+//
+//   // out of bounds checker
+//   if (isOutOfBounds())
+//   {
+//      kill();
+//      points *= -1; // points go negative when it is missed!
+//   }
+//}
+//
+///*********************************************
+// * FLOATER ADVANCE
+// * How the floating bird moves: strong drag and anti-gravity
+// *********************************************/
+//void Floater::advance()
+//{
+//   // large amount of drag
+//   v *= 0.990;
+//
+//   // inertia
+//   pt.add(v);
+//
+//   // anti-gravity
+//   v.addDy(0.05);
+//
+//   // out of bounds checker
+//   if (isOutOfBounds())
+//   {
+//      kill();
+//      points *= -1; // points go negative when it is missed!
+//   }
+//}
+//
+///*********************************************
+// * CRAZY ADVANCE
+// * How the crazy bird moves, every half a second it changes direciton
+// *********************************************/
+//void Crazy::advance()
+//{
+//   // erratic turns eery half a second or so
+//   if (randomInt(0, 15) == 0)
+//   {
+//      v.addDy(randomFloat(-1.5, 1.5));
+//      v.addDx(randomFloat(-1.5, 1.5));
+//   }
+//
+//   // inertia
+//   pt.add(v);
+//
+//   // out of bounds checker
+//   if (isOutOfBounds())
+//   {
+//      kill();
+//      points *= -1; // points go negative when it is missed!
+//   }
+//}
+//
+///*********************************************
+// * SINKER ADVANCE
+// * How the sinker bird moves, no drag but gravity
+// *********************************************/
+//void Sinker::advance()
+//{
+//   // gravity
+//   v.addDy(-0.07);
+//
+//   // inertia
+//   pt.add(v);
+//
+//   // out of bounds checker
+//   if (isOutOfBounds())
+//   {
+//      kill();
+//      points *= -1; // points go negative when it is missed!
+//   }
+//}
 
 /***************************************************************/
 /***************************************************************/
@@ -335,5 +343,72 @@ void Sinker::draw()
    {
       drawDisk(pt, radius - 0.0, 0.0, 0.0, 0.8);
       drawDisk(pt, radius - 4.0, 0.0, 0.0, 0.0);
+   }
+}
+
+void Bird::Inertia::advance(Bird & bird) {
+   bird.adjustVelocity(0.995);
+   bird.adjustPosition();
+   
+   if (bird.isOutOfBounds()) {
+      bird.kill();
+      bird.subtractPoints();
+   }
+}
+
+void Bird::Gravity::advance(Bird & bird) {
+   // gravity
+   Velocity v = bird.getVelocity();
+   v.addDy(-0.07);
+   bird = v;
+   // inertia
+   bird.adjustPosition();
+
+   // out of bounds checker
+   if (bird.isOutOfBounds())
+   {
+      bird.kill();
+      bird.subtractPoints(); // points go negative when it is missed!
+   }
+}
+
+void Bird::Buoyancy::advance(Bird & bird) {
+   // large amount of drag
+   bird.adjustVelocity(0.990);
+
+   // inertia
+   bird.adjustPosition();
+
+   // anti-gravity
+   Velocity v = bird.getVelocity();
+   v.addDy(0.05);
+   bird = v;
+
+   // out of bounds checker
+   if (bird.isOutOfBounds())
+   {
+      bird.kill();
+      bird.subtractPoints(); // points go negative when it is missed!
+   }
+}
+
+void Bird::Chaos::advance(Bird & bird) {
+   // erratic turns eery half a second or so
+   if (randomInt(0, 15) == 0)
+   {
+      Velocity v = bird.getVelocity();
+      v.addDy(randomFloat(-1.5, 1.5));
+      v.addDx(randomFloat(-1.5, 1.5));
+      bird = v;
+   }
+
+   // inertia
+   bird.adjustPosition();
+
+   // out of bounds checker
+   if (bird.isOutOfBounds())
+   {
+      bird.kill();
+      bird.subtractPoints();
    }
 }
