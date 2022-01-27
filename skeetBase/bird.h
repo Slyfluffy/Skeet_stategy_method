@@ -2,7 +2,7 @@
  * Header File:
  *    Bird : Everything that can be shot
  * Author:
- *    Br. Helfrich
+ *    Br. Helfrich, Journey Curtis (Implementation of Strategy pattern)
  * Summary:
  *    Stuff that moves across the screen to be shot
  ************************************************************************/
@@ -10,6 +10,7 @@
 #pragma once
 #include "point.h"
 
+// Enumeration to determine bird for factory!
 enum BirdType{ STANDARD, SINKER, FLOATER, CRAZY };
 
 /**********************
@@ -19,6 +20,15 @@ enum BirdType{ STANDARD, SINKER, FLOATER, CRAZY };
 class Bird
 {
 protected:
+   /****************************************************
+    * BIRD :: ADVANCE CLASS
+    * Advance contains two methods, factory and advance.
+    * Factory returns the type of advance (for the 
+    * respective bird). Advance is a virtual function
+    * implemented by the type of advance.
+    * NOTE. Implemented here because it kept giving me
+    * errors in it's own file (circular dependancy).
+    ***************************************************/
    class Advance {
    public:
       static Advance* factory(BirdType type) {
@@ -40,21 +50,41 @@ protected:
       virtual void advance(Bird & bird) = 0;
    };
    
+   /****************************************************
+    * BIRD :: INTERTIA CLASS :: ADVANCE
+    * Intertia inherits from Advance. It is the standard
+    * bird's movement.
+    ***************************************************/
    class Inertia: public Advance {
    public:
       void advance(Bird & bird);
    };
 
+   /***************************************************
+    * BIRD :: GRAVITY CLASS :: ADVANCE
+    * Gravity inherits from Advance. It is the floater
+    * bird's movement.
+    **************************************************/
    class Gravity: public Advance {
    public:
       void advance(Bird & bird);
    };
 
+   /****************************************************
+    * BIRD :: BUOYANCY CLASS :: ADVANCE
+    * Buoyancy inherits from Advance. It is the buoyancy
+    * bird's movement.
+    ***************************************************/
    class Buoyancy: public Advance {
    public:
       void advance(Bird & bird);
    };
 
+   /**********************************************
+    * BIRD :: CHAOS CLASS :: ADVANCE
+    * Chaos inherits from Advance. It is the chaos
+    * bird's movement.
+    *********************************************/
    class Chaos: public Advance {
    public:
       void advance(Bird & bird);
@@ -66,7 +96,7 @@ protected:
    double radius;             // the size (radius) of the flyer
    bool dead;                 // is this flyer dead?
    int points;                // how many points is this worth?
-   Advance * a;
+   Advance * a; // Pointer because it is an abstract class.
    
 public:
    Bird() : dead(false), points(0), radius(1.0) { }
